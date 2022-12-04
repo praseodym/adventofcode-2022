@@ -1,12 +1,12 @@
 fn main() {
-    let (part1_answer, _part2_answer) = run(include_str!("../input"));
+    let (part1_answer, part2_answer) = run(include_str!("../input"));
     println!("part 1 answer: {}", part1_answer);
-    //println!("part 2 answer: {}", part2_answer);
+    println!("part 2 answer: {}", part2_answer);
 }
 
 fn run(input: &'static str) -> (u32, u32) {
     let mut part1_answer: u32 = 0;
-    let part2_answer: u32 = 0;
+    let mut part2_answer: u32 = 0;
 
     let lines = parse_input(input);
     for line in lines {
@@ -19,8 +19,14 @@ fn run(input: &'static str) -> (u32, u32) {
         let mut p2s = p2.split('-');
         let p2a = p2s.next().unwrap().parse::<u32>().unwrap();
         let p2b = p2s.next().unwrap().parse::<u32>().unwrap();
+
         if p1a >= p2a && p1b <= p2b || p2a >= p1a && p2b <= p1b {
             part1_answer += 1;
+        }
+
+        if (p1a >= p2a && p1a <= p2b) || (p1b >= p2a && p1b <= p2b) ||
+            (p2a >= p1a && p2a <= p1b) || (p2b >= p1a && p2b <= p1b) {
+            part2_answer += 1;
         }
     }
 
@@ -28,7 +34,7 @@ fn run(input: &'static str) -> (u32, u32) {
 }
 
 fn parse_input(input: &'static str) -> Vec<&str> {
-    input.trim_end().split("\n").collect()
+    input.trim_end().split('\n').collect()
 }
 
 #[cfg(test)]
@@ -45,13 +51,13 @@ mod tests {
     fn test_example_answer() {
         let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 2);
-        assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 4);
     }
 
     #[test]
     fn test_input_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input"));
+        let (part1_answer, part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, 556);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 876);
     }
 }
