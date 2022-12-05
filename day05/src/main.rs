@@ -8,56 +8,53 @@ struct Move {
 }
 
 fn main() {
-    let (part1_answer, part2_answer) = run(include_str!("../input"), 9);
+    let (part1_answer, part2_answer) = run(include_str!("../input"));
     println!("part 1 answer: {}", part1_answer);
     println!("part 2 answer: {}", part2_answer);
 }
 
-fn run(input: &'static str, num_stacks: usize) -> (String, String) {
-    let mut part1_answer = "".to_string();
-    let mut part2_answer = "".to_string();
+fn run(input: &'static str) -> (String, String) {
+    let (mut stacks, commands) = parse_input(input);
+    let stacks2 = stacks.clone();
 
-    let (mut stacks, commands) = parse_input(input, num_stacks);
-
-    for m in commands {
+    // part one
+    for m in &commands {
         for _ in 0..m.amount {
             let item = stacks[m.from - 1].pop_back().unwrap();
             stacks[m.to - 1].push_back(item);
         }
     }
+    let part1_answer = answer(&mut stacks);
 
-    for stack in &stacks {
-        part1_answer.push(stack[stack.len() - 1]);
-    }
-
-    let (mut stacks, commands) = parse_input(input, num_stacks);
-
-    for m in commands {
+    // part two
+    stacks = stacks2;
+    for m in &commands {
         let n = stacks[m.from - 1].len();
         let items: Vec<char> = stacks[m.from - 1].drain(n - m.amount..n).collect();
         items
             .iter()
             .for_each(|item| stacks[m.to - 1].push_back(*item));
     }
-
-    for stack in &stacks {
-        part2_answer.push(stack[stack.len() - 1]);
-    }
+    let part2_answer = answer(&mut stacks);
 
     (part1_answer, part2_answer)
 }
 
-fn parse_input(input: &'static str, num_stacks: usize) -> (Vec<VecDeque<char>>, Vec<Move>) {
-    //let num_stacks = input.split('\n').next().unwrap().chars().count()/4;
-    //println!("num stacks: {}", num_stacks);
-    let mut stacks: Vec<VecDeque<char>> = Vec::with_capacity(num_stacks);
-    for _ in 0..num_stacks {
-        stacks.push(VecDeque::new());
+fn answer(stacks: &Vec<VecDeque<char>>) -> String {
+    let mut answer = "".to_string();
+    for stack in stacks {
+        answer.push(stack[stack.len() - 1]);
     }
+    answer
+}
+
+fn parse_input(input: &'static str) -> (Vec<VecDeque<char>>, Vec<Move>) {
+    let mut stacks: Vec<VecDeque<char>> = Vec::new();
     let mut lines = input.trim_end().split('\n');
     'outer: loop {
         let mut chars = lines.next().unwrap().chars();
-        for i in 0..num_stacks {
+        let mut i = 0;
+        loop {
             let skip = 1 + (if i > 0 { 2 } else { 0 });
             let c = (&mut chars).skip(skip).take(1).next();
             if c.is_none() {
@@ -67,9 +64,13 @@ fn parse_input(input: &'static str, num_stacks: usize) -> (Vec<VecDeque<char>>, 
             if c.is_digit(10) {
                 break 'outer;
             }
+            if stacks.len() == i {
+                stacks.push(VecDeque::new());
+            }
             if c != ' ' {
                 stacks[i].push_front(c);
             }
+            i += 1;
         }
     }
     let mut commands: Vec<Move> = Vec::new();
@@ -109,27 +110,27 @@ mod tests {
 
     #[test]
     fn test_example_parse() {
-        let (stacks, commands) = parse_input(include_str!("../input-example"), 3);
+        let (stacks, commands) = parse_input(include_str!("../input-example"));
         assert_eq!(stacks.len(), 3);
         assert_eq!(commands.len(), 4);
     }
 
     #[test]
     fn test_input_parse() {
-        let (stacks, _) = parse_input(include_str!("../input"), 9);
+        let (stacks, _) = parse_input(include_str!("../input"));
         assert_eq!(stacks.len(), 9);
     }
 
     #[test]
     fn test_example_answer() {
-        let (part1_answer, part2_answer) = run(include_str!("../input-example"), 3);
+        let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, "CMZ");
         assert_eq!(part2_answer, "MCD");
     }
 
     #[test]
     fn test_input_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input"), 9);
+        let (part1_answer, _part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, "CNSZFDVLJ");
     }
 }
