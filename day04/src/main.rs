@@ -24,8 +24,11 @@ fn run(input: &'static str) -> (u32, u32) {
             part1_answer += 1;
         }
 
-        if (p1a >= p2a && p1a <= p2b) || (p1b >= p2a && p1b <= p2b) ||
-            (p2a >= p1a && p2a <= p1b) || (p2b >= p1a && p2b <= p1b) {
+        if (p1a >= p2a && p1a <= p2b)
+            || (p1b >= p2a && p1b <= p2b)
+            || (p2a >= p1a && p2a <= p1b)
+            || (p2b >= p1a && p2b <= p1b)
+        {
             part2_answer += 1;
         }
     }

@@ -25,7 +25,8 @@ fn run(input: &'static str) -> (u32, u32) {
 fn parse_input(input: &'static str) -> Vec<Vec<u32>> {
     let mut ret = Vec::new();
     for elf in input.trim_end().split("\n\n") {
-        let cal = elf.lines()
+        let cal = elf
+            .lines()
             .map(|line_str| line_str.parse::<u32>().unwrap())
             .collect();
         ret.push(cal);

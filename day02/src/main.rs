@@ -20,7 +20,7 @@ fn run(input: &'static str) -> (u32, u32) {
             "A Z" => 3 + 0,
             "B Z" => 3 + 6,
             "C Z" => 3 + 3,
-            _ => panic!("unknown input: {}", line)
+            _ => panic!("unknown input: {}", line),
         };
         part2_answer += match line {
             "A X" => 3 + 0,
@@ -32,7 +32,7 @@ fn run(input: &'static str) -> (u32, u32) {
             "A Z" => 2 + 6,
             "B Z" => 3 + 6,
             "C Z" => 1 + 6,
-            _ => panic!("unknown input: {}", line)
+            _ => panic!("unknown input: {}", line),
         };
     }
 

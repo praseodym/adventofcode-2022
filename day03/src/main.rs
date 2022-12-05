@@ -14,7 +14,7 @@ fn run(input: &'static str) -> (u32, u32) {
     // part one
     for rucksack in &rucksacks {
         let r = rucksack.to_string();
-        let n = r.len()/2;
+        let n = r.len() / 2;
         let mut c = r.chars();
         let r1: HashSet<char> = c.by_ref().take(n).collect();
         let r2: HashSet<char> = c.by_ref().take(n).collect();
