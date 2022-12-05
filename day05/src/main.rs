@@ -24,7 +24,7 @@ fn run(input: &'static str) -> (String, String) {
             stacks[m.to - 1].push_back(item);
         }
     }
-    let part1_answer = answer(&mut stacks);
+    let part1_answer = answer(&stacks);
 
     // part two
     stacks = stacks2;
@@ -35,7 +35,7 @@ fn run(input: &'static str) -> (String, String) {
             .iter()
             .for_each(|item| stacks[m.to - 1].push_back(*item));
     }
-    let part2_answer = answer(&mut stacks);
+    let part2_answer = answer(&stacks);
 
     (part1_answer, part2_answer)
 }
@@ -60,8 +60,8 @@ fn parse_input(input: &'static str) -> (Vec<VecDeque<char>>, Vec<Move>) {
             if c.is_none() {
                 break;
             }
-            let c = c.unwrap().clone();
-            if c.is_digit(10) {
+            let c = c.unwrap();
+            if c.is_ascii_digit() {
                 break 'outer;
             }
             if stacks.len() == i {
