@@ -8,13 +8,17 @@ fn main() {
 }
 
 fn run(input: &'static str) -> (usize, usize) {
-    let mut part1_answer: usize = 0;
-    let mut part2_answer: usize = 0;
-
     let fs = parse_input(input);
 
-    // println!("fs: {:?}", fs);
-    part1_answer = fs.values().filter(|size| **size <= 100000).sum();
+    let part1_answer = fs.values().filter(|&&size| size <= 100000).sum();
+
+    let total = 70000000usize;
+    let free = total - fs.get("/").unwrap();
+    let req = 30000000 - free;
+
+    let mut sizes: Vec<usize> = fs.values().copied().collect();
+    sizes.sort();
+    let part2_answer = *sizes.iter().find(|&&size| size >= req).unwrap();
 
     (part1_answer, part2_answer)
 }
@@ -56,7 +60,7 @@ fn parse_input(input: &'static str) -> HashMap<String, usize> {
                 // ignore
             }
             _ => {
-                let name = s.next().unwrap();
+                let _name = s.next().unwrap();
                 let size = first.parse::<usize>().unwrap();
                 let mut d = Path::new(&cwd);
                 loop {
@@ -82,21 +86,21 @@ mod tests {
 
     #[test]
     fn test_example_parse() {
-        let lines = parse_input(include_str!("../input-example"));
-        // assert_eq!(lines.len(), 23);
+        let fs = parse_input(include_str!("../input-example"));
+        assert_eq!(fs.len(), 4);
     }
 
     #[test]
     fn test_example_answer() {
         let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 95437);
-        assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 24933642);
     }
 
     #[test]
     fn test_input_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input"));
+        let (part1_answer, part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, 1443806);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 942298);
     }
 }
