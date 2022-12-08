@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::PathBuf;
 
 fn main() {
     let (part1_answer, part2_answer) = run(include_str!("../input"));
@@ -13,7 +13,7 @@ fn run(input: &'static str) -> (usize, usize) {
     let part1_answer = fs.values().filter(|&&size| size <= 100000).sum();
 
     let total = 70000000usize;
-    let free = total - fs.get("/").unwrap();
+    let free = total - fs.get(&PathBuf::from("/")).unwrap();
     let req = 30000000 - free;
 
     let mut sizes: Vec<usize> = fs.values().copied().collect();
@@ -23,12 +23,11 @@ fn run(input: &'static str) -> (usize, usize) {
     (part1_answer, part2_answer)
 }
 
-fn parse_input(input: &'static str) -> HashMap<String, usize> {
-    let mut dirs: HashMap<String, usize> = HashMap::new();
-    let mut cwd = "/".to_string();
+fn parse_input(input: &'static str) -> HashMap<PathBuf, usize> {
+    let mut dirs: HashMap<PathBuf, usize> = HashMap::new();
+    let mut cwd = PathBuf::from("/");
 
     for line in input.trim_end().split('\n') {
-        // println!("line: {}", line);
         let mut s = line.split_whitespace();
         let first = s.next().unwrap();
         match first {
@@ -38,40 +37,31 @@ fn parse_input(input: &'static str) -> HashMap<String, usize> {
                     "cd" => {
                         let third = s.next().unwrap();
                         if third == ".." {
-                            cwd = Path::new(&cwd)
-                                .parent()
-                                .unwrap()
-                                .to_str()
-                                .unwrap()
-                                .to_string();
+                            cwd = cwd.parent().unwrap().to_path_buf();
                         } else {
-                            cwd = Path::new(&cwd).join(third).to_str().unwrap().to_string();
+                            cwd = cwd.join(third);
                         }
                     }
-                    "ls" => {
-                        // ignore
-                    }
+                    "ls" => (),
                     _ => {
                         panic!("unknown command {} {}", first, second);
                     }
                 }
             }
-            "dir" => {
-                // ignore
-            }
+            "dir" => (),
             _ => {
                 let _name = s.next().unwrap();
                 let size = first.parse::<usize>().unwrap();
-                let mut d = Path::new(&cwd);
+                let mut d = cwd.clone();
                 loop {
-                    dirs.entry(d.to_str().unwrap().to_string())
+                    dirs.entry(d.clone())
                         .and_modify(|s| *s += size)
                         .or_insert(size);
                     let parent = d.parent();
                     if parent.is_none() {
                         break;
                     }
-                    d = parent.unwrap();
+                    d = parent.unwrap().to_path_buf();
                 }
             }
         }
