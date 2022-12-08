@@ -83,6 +83,54 @@ impl Grid {
         }
         n
     }
+
+    fn scenic_score(&self, x: usize, y: usize) -> u32 {
+        let h = self.trees[y][x];
+
+        // look left
+        let mut score_left: u32 = 0;
+        for a in (0..x).rev() {
+            score_left += 1;
+            if self.trees[y][a] >= h {
+                break;
+            }
+        }
+        // look right
+        let mut score_right: u32 = 0;
+        for a in x + 1..=self.width {
+            score_right += 1;
+            if self.trees[y][a] >= h {
+                break;
+            }
+        }
+        // look up
+        let mut score_up: u32 = 0;
+        for b in (0..y).rev() {
+            score_up += 1;
+            if self.trees[b][x] >= h {
+                break;
+            }
+        }
+        // look down
+        let mut score_down: u32 = 0;
+        for b in y + 1..=self.height {
+            score_down += 1;
+            if self.trees[b][x] >= h {
+                break;
+            }
+        }
+        score_up * score_left * score_right * score_down
+    }
+
+    fn max_scenic_score(&self) -> u32 {
+        let mut score: u32 = 0;
+        for x in 0..=self.width {
+            for y in 0..=self.height {
+                score = cmp::max(score, self.scenic_score(x, y));
+            }
+        }
+        score
+    }
 }
 
 fn main() {
@@ -95,7 +143,7 @@ fn run(input: &'static str) -> (u32, u32) {
     let grid = Grid::parse_input(input);
 
     let part1_answer = grid.count_visible() as u32;
-    let part2_answer = 0;
+    let part2_answer = grid.max_scenic_score();
 
     (part1_answer, part2_answer)
 }
@@ -123,16 +171,23 @@ mod tests {
     }
 
     #[test]
+    fn test_scenic_score() {
+        let grid = Grid::parse_input(include_str!("../input-example"));
+        assert_eq!(grid.scenic_score(2, 1), 4);
+        assert_eq!(grid.scenic_score(2, 3), 8);
+    }
+
+    #[test]
     fn test_example_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input-example"));
+        let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 21);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 8);
     }
 
     #[test]
     fn test_input_answer() {
-        let (_part1_answer, _part2_answer) = run(include_str!("../input"));
-        // assert_eq!(part1_answer, 0);
-        // assert_eq!(part2_answer, 0);
+        let (part1_answer, part2_answer) = run(include_str!("../input"));
+        assert_eq!(part1_answer, 1705);
+        assert_eq!(part2_answer, 371200);
     }
 }
