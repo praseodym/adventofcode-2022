@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::slice::Iter;
 
 fn main() {
@@ -16,12 +17,11 @@ fn run(input: &'static str) -> (usize, usize) {
     (part1_answer, part2_answer)
 }
 
-const N: usize = 700;
 #[derive(Debug)]
 struct Rope {
-    visited: Box<[[bool; N]; N]>,
-    kx: Vec<usize>,
-    ky: Vec<usize>,
+    visited: HashSet<(isize, isize)>,
+    kx: Vec<isize>,
+    ky: Vec<isize>,
 }
 
 impl Rope {
@@ -35,9 +35,9 @@ impl Rope {
 
     fn new(knots: usize) -> Self {
         Rope {
-            visited: Box::new([[false; N as usize]; N as usize]),
-            kx: vec![N / 2; knots],
-            ky: vec![N / 2; knots],
+            visited: HashSet::new(),
+            kx: vec![0; knots],
+            ky: vec![0; knots],
         }
     }
 
@@ -48,7 +48,7 @@ impl Rope {
                 'R' => self.kx[0] += 1,
                 'U' => self.ky[0] -= 1,
                 'D' => self.ky[0] += 1,
-                _ => panic!("unknown: {}", direction),
+                _ => panic!("unknown direction: {}", direction),
             };
             self.update_knots();
         }
@@ -56,12 +56,8 @@ impl Rope {
 
     fn update_knots(&mut self) {
         for i in 1..self.kx.len() {
-            let touching = (self.ky[i - 1] + 1 == self.ky[i]
-                || self.ky[i - 1] - 1 == self.ky[i]
-                || self.ky[i - 1] == self.ky[i])
-                && (self.kx[i - 1] + 1 == self.kx[i]
-                    || self.kx[i - 1] - 1 == self.kx[i]
-                    || self.kx[i - 1] == self.kx[i]);
+            let touching = isize::abs(self.kx[i - 1] - self.kx[i]) <= 1
+                && isize::abs(self.ky[i - 1] - self.ky[i]) <= 1;
 
             if touching {
                 continue;
@@ -84,15 +80,12 @@ impl Rope {
     }
 
     fn update_visited(&mut self) {
-        self.visited[self.ky[self.ky.len() - 1]][self.kx[self.kx.len() - 1]] = true;
+        self.visited
+            .insert((self.ky[self.ky.len() - 1], self.kx[self.kx.len() - 1]));
     }
 
     fn count_visited(&self) -> usize {
-        self.visited
-            .iter()
-            .flat_map(|r| r.iter())
-            .filter(|&&v| v)
-            .count()
+        self.visited.len()
     }
 }
 
