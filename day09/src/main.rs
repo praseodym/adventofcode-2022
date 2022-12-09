@@ -12,8 +12,8 @@ fn run(input: &'static str) -> (u32, u32) {
         grid.simulate_step(motion.0, motion.1);
     }
 
-    let part1_answer = grid.count_visited();
-    let part2_answer: u32 = 0;
+    let part1_answer: u32 = 0;
+    let part2_answer = grid.count_visited();
 
     (part1_answer, part2_answer)
 }
@@ -22,20 +22,16 @@ const N: isize = 1000;
 #[derive(Debug)]
 struct Grid {
     visited: Box<[[bool; N as usize]; N as usize]>,
-    hx: isize,
-    hy: isize,
-    tx: isize,
-    ty: isize,
+    kx: [isize; 10],
+    ky: [isize; 10],
 }
 
 impl Grid {
     fn new() -> Self {
         let mut grid = Grid {
             visited: Box::new([[false; N as usize]; N as usize]),
-            hx: N / 2,
-            hy: N / 2,
-            tx: N / 2,
-            ty: N / 2,
+            kx: [N / 2; 10],
+            ky: [N / 2; 10],
         };
         grid.update_visited();
         grid
@@ -46,26 +42,26 @@ impl Grid {
         match direction {
             "R" => {
                 for _ in 0..steps {
-                    self.hx += 1;
-                    self.update_tail();
+                    self.kx[0] += 1;
+                    self.update_knots();
                 }
             }
             "L" => {
                 for _ in 0..steps {
-                    self.hx -= 1;
-                    self.update_tail();
+                    self.kx[0] -= 1;
+                    self.update_knots();
                 }
             }
             "U" => {
                 for _ in 0..steps {
-                    self.hy -= 1;
-                    self.update_tail();
+                    self.ky[0] -= 1;
+                    self.update_knots();
                 }
             }
             "D" => {
                 for _ in 0..steps {
-                    self.hy += 1;
-                    self.update_tail();
+                    self.ky[0] += 1;
+                    self.update_knots();
                 }
             }
             _ => {
@@ -90,7 +86,7 @@ impl Grid {
         count
     }
 
-    fn update_tail(&mut self) {
+    fn update_knots(&mut self) {
         // if self.first {
         //     self.first = false;
         //     return;
@@ -100,56 +96,43 @@ impl Grid {
         //     Ordering::Less => b(),
         //     Ordering::Equal => c()
         // }
+        for i in 1..10 {
+            let touching = (self.kx[i - 1] == self.kx[i]
+                || self.kx[i - 1] - 1 == self.kx[i]
+                || self.kx[i - 1] + 1 == self.kx[i])
+                && (self.ky[i - 1] == self.ky[i]
+                    || self.ky[i - 1] - 1 == self.ky[i]
+                    || self.ky[i - 1] + 1 == self.ky[i]);
 
-        let touching = (self.hx == self.tx || self.hx - 1 == self.tx || self.hx + 1 == self.tx)
-            && (self.hy == self.ty || self.hy - 1 == self.ty || self.hy + 1 == self.ty);
-
-        if touching {
-            // self.print_state();
-            return;
-        }
-
-        if self.hx > self.tx {
-            self.tx += 1;
-        } else if self.hx < self.tx {
-            self.tx -= 1;
-        }
-        if self.hy > self.ty {
-            self.ty += 1;
-        } else if self.hy < self.ty {
-            self.ty -= 1;
-        }
-
-        if self.tx < 0 {
-            self.tx = 0;
-        }
-        if self.ty < 0 {
-            self.ty = 0;
-        }
-
-        // self.print_state();
-        self.update_visited();
-    }
-
-    fn print_state(&self) {
-        for y in 0..N {
-            for x in 0..N {
-                if x == self.hx && y == self.hy {
-                    print!("H");
-                } else if x == self.tx && y == self.ty {
-                    print!("T");
-                } else {
-                    print!(".");
-                }
+            if touching {
+                continue;
             }
-            println!();
+
+            if self.kx[i - 1] > self.kx[i] {
+                self.kx[i] += 1;
+            } else if self.kx[i - 1] < self.kx[i] {
+                self.kx[i] -= 1;
+            }
+            if self.ky[i - 1] > self.ky[i] {
+                self.ky[i] += 1;
+            } else if self.ky[i - 1] < self.ky[i] {
+                self.ky[i] -= 1;
+            }
+
+            if self.kx[i] < 0 {
+                self.kx[i] = 0;
+            }
+            if self.ky[i] < 0 {
+                self.ky[i] = 0;
+            }
         }
-        println!();
+
+        self.update_visited();
     }
 
     fn update_visited(&mut self) {
         // println!("tail: {} {}", self.tx, self.ty);
-        self.visited[self.ty as usize][self.tx as usize] = true;
+        self.visited[self.ky[9] as usize][self.kx[9] as usize] = true;
     }
 }
 
@@ -173,16 +156,21 @@ mod tests {
     }
 
     #[test]
-    fn test_example_answer() {
-        let (part1_answer, part2_answer) = run(include_str!("../input-example"));
-        assert_eq!(part1_answer, 13);
-        // assert_eq!(part2_answer, 0);
+    fn test_example1_answer() {
+        let (part1_answer, _) = run(include_str!("../input-example"));
+        //assert_eq!(part1_answer, 13);
+    }
+
+    #[test]
+    fn test_example2_answer() {
+        let (_, part2_answer) = run(include_str!("../input-example2"));
+        assert_eq!(part2_answer, 36);
     }
 
     #[test]
     fn test_input_answer() {
         let (part1_answer, part2_answer) = run(include_str!("../input"));
-        // assert_eq!(part1_answer, 0);
-        // assert_eq!(part2_answer, 0);
+        // assert_eq!(part1_answer, 6494);
+        assert_eq!(part2_answer, 2691);
     }
 }
