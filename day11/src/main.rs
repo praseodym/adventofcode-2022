@@ -7,16 +7,19 @@ fn main() {
     println!("part 2 answer: {}", part2_answer);
 }
 
-fn run(input: &'static str) -> (u32, u32) {
-    let mut part1_answer: u32 = 0;
-    let mut part2_answer: u32 = 0;
+fn run(input: &'static str) -> (u64, u64) {
+    let monkeys = parse_input(input);
+    let part1_answer = shenanigans(monkeys.clone(), 20, |wl| wl / 3);
+    let product: u64 = monkeys.iter().map(|m| m.test).product();
+    let part2_answer = shenanigans(monkeys, 10000, |wl| wl % product);
+    (part1_answer, part2_answer)
+}
 
-    println!("=====");
+fn shenanigans(mut monkeys: Vec<Monkey>, rounds: usize, simplify_wl: impl Fn(u64) -> u64) -> u64 {
+    let mut inspected = vec![0u64; monkeys.len()];
 
-    let mut monkeys = parse_input(input);
-    let mut inspected = vec![0; monkeys.len()];
-
-    for round in 1..=20 {
+    for _round in 1..=rounds {
+        #[allow(clippy::needless_range_loop)]
         for i in 0..monkeys.len() {
             let mut items = {
                 let monkey = monkeys.get_mut(i).unwrap();
@@ -30,7 +33,7 @@ fn run(input: &'static str) -> (u32, u32) {
                     Operation::Times(x) => item * x,
                     Operation::Plus(x) => item + x,
                 };
-                wl /= 3;
+                wl = simplify_wl(wl);
                 if wl % monkey.test == 0 {
                     monkeys
                         .get_mut(monkey.test_true)
@@ -44,30 +47,20 @@ fn run(input: &'static str) -> (u32, u32) {
                         .items
                         .push_back(wl);
                 }
-                // println!("wl: {}", wl);
             }
-            // println!("monkey: {:?}", &monkey);
-        }
-        println!("=====");
-
-        for monkey in &monkeys {
-            println!("monkey: {:?}", &monkey);
         }
     }
 
-    println!("inspected: {:?}", &inspected);
     inspected.sort();
     inspected.reverse();
-    part1_answer = inspected[0] * inspected[1];
-
-    (part1_answer, part2_answer)
+    inspected[0] * inspected[1]
 }
 
 #[derive(Debug, Clone)]
 struct Monkey {
-    items: VecDeque<u32>,
+    items: VecDeque<u64>,
     operation: Operation,
-    test: u32,
+    test: u64,
     test_true: usize,
     test_false: usize,
 }
@@ -75,8 +68,8 @@ struct Monkey {
 #[derive(Debug, Clone)]
 enum Operation {
     Squared,
-    Times(u32),
-    Plus(u32),
+    Times(u64),
+    Plus(u64),
 }
 
 fn parse_input(input: &'static str) -> Vec<Monkey> {
@@ -90,9 +83,9 @@ fn parse_input(input: &'static str) -> Vec<Monkey> {
             .trim()
             .strip_prefix("Starting items: ")
             .unwrap();
-        let starting_items: VecDeque<u32> = s
+        let starting_items: VecDeque<u64> = s
             .split(", ")
-            .map(|line_str| line_str.parse::<u32>().unwrap())
+            .map(|line_str| line_str.parse::<u64>().unwrap())
             .collect();
         let s = lines
             .next()
@@ -107,9 +100,9 @@ fn parse_input(input: &'static str) -> Vec<Monkey> {
             "" => Operation::Squared,
             "*" => match scalar {
                 "old" => Operation::Squared,
-                _ => Operation::Times(scalar.parse::<u32>().unwrap()),
+                _ => Operation::Times(scalar.parse::<u64>().unwrap()),
             },
-            "+" => Operation::Plus(scalar.parse::<u32>().unwrap()),
+            "+" => Operation::Plus(scalar.parse::<u64>().unwrap()),
             _ => panic!("unknown op {}", op),
         };
         let test = lines
@@ -118,7 +111,7 @@ fn parse_input(input: &'static str) -> Vec<Monkey> {
             .trim()
             .strip_prefix("Test: divisible by ")
             .unwrap()
-            .parse::<u32>()
+            .parse::<u64>()
             .unwrap();
         let test_true = lines
             .next()
@@ -143,7 +136,6 @@ fn parse_input(input: &'static str) -> Vec<Monkey> {
             test_true,
             test_false,
         };
-        println!("monkey: {:?}", &monkey);
         monkeys.push(monkey);
         if lines.next().is_none() {
             break;
@@ -166,13 +158,13 @@ mod tests {
     fn test_example_answer() {
         let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 10605);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 2713310158);
     }
 
     #[test]
     fn test_input_answer() {
         let (part1_answer, part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, 62491);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 17408399184);
     }
 }
