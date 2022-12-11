@@ -97,13 +97,12 @@ fn parse_input(input: &'static str) -> Vec<Monkey> {
         let op = p.next().unwrap();
         let scalar = p.next().unwrap();
         let operation = match op {
-            "" => Operation::Squared,
             "*" => match scalar {
                 "old" => Operation::Squared,
                 _ => Operation::Times(scalar.parse::<u64>().unwrap()),
             },
             "+" => Operation::Plus(scalar.parse::<u64>().unwrap()),
-            _ => panic!("unknown op {}", op),
+            _ => panic!("unknown op: {}", op),
         };
         let test = lines
             .next()
