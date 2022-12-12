@@ -11,9 +11,19 @@ fn main() {
 
 fn run(input: &'static str) -> (usize, usize) {
     let em = ElevationMap::parse_input(input);
-    let part1_answer = em.find_path();
+    let part1_answer = em.find_path(em.start);
 
-    let part2_answer = 0;
+    let mut distances: Vec<usize> = Vec::new();
+    for y in 0..=em.max_y {
+        for x in 0..=em.max_x {
+            if em.elevations[y][x] == 0 {
+                let distance = em.find_path((x, y));
+                distances.push(distance);
+            }
+        }
+    }
+    distances.sort();
+    let part2_answer = distances[0];
 
     (part1_answer, part2_answer)
 }
@@ -118,7 +128,7 @@ impl ElevationMap {
     }
 
     // adventofcode2021 day15
-    fn find_path(&self) -> usize {
+    fn find_path(&self, start: (usize, usize)) -> usize {
         let mut distances = HashMap::new();
         let mut visited = HashSet::new();
         let mut to_visit: BinaryHeap<Visit<Position>> = BinaryHeap::new();
@@ -126,31 +136,23 @@ impl ElevationMap {
         // start
         to_visit.push(Visit {
             pos: Position {
-                x: self.start.0,
-                y: self.start.1,
-                elevation: self.elevations[self.start.1][self.start.0],
+                x: start.0,
+                y: start.1,
+                elevation: self.elevations[start.1][start.0],
             },
             distance: 0,
         });
 
         while let Some(Visit { pos, distance }) = to_visit.pop() {
+            // TODO: terminate early if we are at the end position
+
             if !visited.insert(pos) {
                 continue;
             }
 
             let adj = self.get_adjacent(pos);
-            println!("---");
-            println!("- cur: {:?}", pos);
-            println!("- adj: {:?}", adj);
-
             for neighbour in adj {
                 let new_distance = distance + 1;
-
-                // check if at end location
-                // if p.x == self.end.0 && p.y == self.end.1 {
-                //     println!("END visited: {:?}", visited);
-                //     return visited.len();
-                // }
 
                 let is_shorter = distances
                     .get(&neighbour)
@@ -158,7 +160,6 @@ impl ElevationMap {
 
                 if is_shorter {
                     distances.insert(neighbour, new_distance);
-                    println!("- to_visit: {:?}", neighbour);
                     to_visit.push(Visit {
                         pos: neighbour,
                         distance: new_distance,
@@ -167,20 +168,12 @@ impl ElevationMap {
             }
         }
 
-        println!("-----");
-        println!("distances: ",);
-
-        let end = distances.get(&Position {
+        let end_distance = distances.get(&Position {
             x: self.end.0,
             y: self.end.1,
             elevation: 0,
         });
-        println!("end: {:?}", end);
-        if let Some(end) = end {
-            return *end;
-        }
-
-        panic!("no route found");
+        end_distance.map_or(usize::MAX, |d| *d)
     }
 
     // "you can move exactly one square up, down, left, or right" / "at most one higher"
@@ -249,15 +242,15 @@ mod tests {
 
     #[test]
     fn test_example_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input-example"));
+        let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 31);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 29);
     }
 
     #[test]
     fn test_input_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input"));
+        let (part1_answer, part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, 391);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 386);
     }
 }
