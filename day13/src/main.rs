@@ -23,7 +23,18 @@ fn run(input: &'static str) -> (usize, usize) {
         }
     }
 
-    let part2_answer: usize = 0;
+    let mut packets: Vec<Packet> = parse_input(input)
+        .into_iter()
+        .flat_map(|(a, b)| [a, b])
+        .collect();
+    let d1 = read_packet("[[2]]");
+    let d2 = read_packet("[[6]]");
+    packets.push(d1.clone());
+    packets.push(d2.clone());
+    packets.sort();
+    let d1i = packets.iter().position(|p| *p == d1).unwrap() + 1;
+    let d2i = packets.iter().position(|p| *p == d2).unwrap() + 1;
+    let part2_answer = d1i * d2i;
 
     (part1_answer, part2_answer)
 }
@@ -150,15 +161,15 @@ mod tests {
 
     #[test]
     fn test_example_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input-example"));
+        let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 13);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 140);
     }
 
     #[test]
     fn test_input_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input"));
+        let (part1_answer, part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, 5623);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 20570);
     }
 }
