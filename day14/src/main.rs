@@ -9,14 +9,20 @@ fn main() {
 
 fn run(input: &'static str) -> (u32, u32) {
     let mut part1_answer: u32 = 0;
-    let part2_answer: u32 = 0;
+    let mut part2_answer: u32 = 0;
 
-    let mut cm = CaveMap::parse_input(input);
-    // for line in lines {}
-    for i in 0..100 {
-        println!("drop sand {}", i);
+    let mut cm = CaveMap::parse_input(input, false);
+    for i in 0..100000 {
         if !cm.drop_sand() {
             part1_answer = i;
+            break;
+        }
+    }
+
+    let mut cm = CaveMap::parse_input(input, true);
+    for i in 0..100000 {
+        if !cm.drop_sand() {
+            part2_answer = i;
             break;
         }
     }
@@ -31,7 +37,7 @@ enum Content {
     Rock,
 }
 
-const N: usize = 600;
+const N: usize = 800;
 #[derive(Debug)]
 struct CaveMap {
     blocked: [[Content; N]; N],
@@ -42,7 +48,7 @@ struct CaveMap {
 }
 
 impl CaveMap {
-    fn parse_input(input: &str) -> CaveMap {
+    fn parse_input(input: &str, floor: bool) -> CaveMap {
         let mut points: Vec<Vec<(usize, usize)>> = Vec::new();
         for line in input.trim_end().split('\n') {
             points.push(
@@ -67,21 +73,21 @@ impl CaveMap {
         };
 
         for path in points {
-            println!("- {:?}", path);
             for i in 1..path.len() {
-                println!("  path {:?} -> {:?}", path[i - 1], path[i]);
-
                 for x in cmp::min(path[i - 1].0, path[i].0)..=cmp::max(path[i - 1].0, path[i].0) {
                     for y in cmp::min(path[i - 1].1, path[i].1)..=cmp::max(path[i - 1].1, path[i].1)
                     {
-                        println!("     ({},{})", x, y);
                         cm.block_point(Rock, x, y);
                     }
                 }
             }
         }
 
-        cm.print(0, 0);
+        if floor {
+            for x in 0..N {
+                cm.blocked[cm.max_y + 2][x] = Rock;
+            }
+        }
 
         cm
     }
@@ -94,6 +100,7 @@ impl CaveMap {
         self.max_y = cmp::max(y, self.max_y);
     }
 
+    #[allow(dead_code)]
     fn print(&self, sx: usize, sy: usize) {
         for y in 0..=self.max_y + 2 {
             print!("| {y:>4}: ", y = y);
@@ -118,6 +125,10 @@ impl CaveMap {
         let mut x = 500;
         let mut y = 0;
 
+        if self.blocked[y][x] == Sand {
+            return false;
+        }
+
         loop {
             if self.blocked[y + 1][x] == Air {
                 y += 1;
@@ -131,44 +142,30 @@ impl CaveMap {
                 break;
             }
             if y == N - 1 {
-                println!("sand fell into abyss");
                 return false;
             }
         }
 
-        println!("sand lands on {}, {}", x, y);
-        self.print(x, y);
         self.block_point(Sand, x, y);
-        println!();
-        println!();
         true
     }
 }
-// fn parse_input(input: &'static str) -> Vec<Vec<(usize, usize)>> {
-// }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_example_parse() {
-        let cm = CaveMap::parse_input(include_str!("../input-example"));
-        // println!("lines: {:?}", lines);
-        // assert_eq!(lines.len(), 2);
-    }
-
-    #[test]
     fn test_example_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input-example"));
+        let (part1_answer, part2_answer) = run(include_str!("../input-example"));
         assert_eq!(part1_answer, 24);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 93);
     }
 
     #[test]
     fn test_input_answer() {
-        let (part1_answer, _part2_answer) = run(include_str!("../input"));
+        let (part1_answer, part2_answer) = run(include_str!("../input"));
         assert_eq!(part1_answer, 901);
-        // assert_eq!(part2_answer, 0);
+        assert_eq!(part2_answer, 24589);
     }
 }
