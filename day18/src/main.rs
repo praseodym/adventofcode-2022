@@ -4,32 +4,33 @@ fn main() {
     println!("part 2 answer: {}", part2_answer);
 }
 
+const N: usize = 25;
+const ADJACENCY: [(isize, isize, isize); 6] = [
+    (1, 0, 0),
+    (-1, 0, 0),
+    (0, 1, 0),
+    (0, -1, 0),
+    (0, 0, 1),
+    (0, 0, -1),
+];
+type Scan = [[[bool; N]; N]; N];
+
 fn run(input: &'static str) -> (u32, u32) {
     let mut part1_answer: u32 = 0;
     let part2_answer: u32 = 0;
 
     let scan = parse_input(input);
-    for x in 0..N {
+    for z in 0..N {
         for y in 0..N {
-            for z in 0..N {
-                if scan[x][y][z] {
-                    if z == 0 || !scan[x][y][z.saturating_sub(1)] {
-                        part1_answer += 1;
-                    }
-                    if !scan[x][y][z + 1] {
-                        part1_answer += 1;
-                    }
-                    if y == 0 || !scan[x][y.saturating_sub(1)][z] {
-                        part1_answer += 1;
-                    }
-                    if !scan[x][y + 1][z] {
-                        part1_answer += 1;
-                    }
-                    if x == 0 || !scan[x.saturating_sub(1)][y][z] {
-                        part1_answer += 1;
-                    }
-                    if !scan[x + 1][y][z] {
-                        part1_answer += 1;
+            for x in 0..N {
+                if scan[z][y][x] {
+                    for (dx, dy, dz) in ADJACENCY.iter() {
+                        let nx = x.saturating_add_signed(*dx);
+                        let ny = y.saturating_add_signed(*dy);
+                        let nz = z.saturating_add_signed(*dz);
+                        if nx >= N || ny >= N || nz >= N || !scan[nz][ny][nx] {
+                            part1_answer += 1;
+                        }
                     }
                 }
             }
@@ -39,16 +40,14 @@ fn run(input: &'static str) -> (u32, u32) {
     (part1_answer, part2_answer)
 }
 
-const N: usize = 25;
-
-fn parse_input(input: &'static str) -> [[[bool; N]; N]; N] {
-    let mut scan = [[[false; N]; N]; N];
+fn parse_input(input: &'static str) -> Scan {
+    let mut scan = Scan::default();
     for line in input.trim_end().split('\n') {
-        let mut s = line.split(',');
-        let x = s.next().unwrap().parse::<usize>().unwrap() + 1;
-        let y = s.next().unwrap().parse::<usize>().unwrap() + 1;
-        let z = s.next().unwrap().parse::<usize>().unwrap() + 1;
-        scan[x][y][z] = true;
+        let mut s = line.split(',').map(|s| s.parse::<usize>().unwrap() + 1);
+        let x = s.next().unwrap();
+        let y = s.next().unwrap();
+        let z = s.next().unwrap();
+        scan[z][y][x] = true;
     }
     scan
 }
@@ -59,12 +58,12 @@ mod tests {
 
     #[test]
     fn test_example1_parse() {
-        let lines = parse_input(include_str!("../input-example1"));
+        parse_input(include_str!("../input-example1"));
     }
 
     #[test]
     fn test_example2_parse() {
-        let lines = parse_input(include_str!("../input-example1"));
+        parse_input(include_str!("../input-example1"));
     }
 
     #[test]
