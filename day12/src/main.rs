@@ -184,7 +184,6 @@ impl ElevationMap {
         if x != 0 {
             // left
             let x = x - 1;
-            let y = y;
             let elevation = self.elevations[y][x] as Elevation;
             if elevation - pos.elevation <= 1 {
                 ret.push(Position { x, y, elevation })
@@ -193,7 +192,7 @@ impl ElevationMap {
         if x != self.max_x {
             // right
             let x = x + 1;
-            let y = y;
+            // let y = y;
             let elevation = self.elevations[y][x] as Elevation;
             if elevation - pos.elevation <= 1 {
                 ret.push(Position { x, y, elevation })
@@ -201,7 +200,6 @@ impl ElevationMap {
         }
         if y != 0 {
             // up
-            let x = x;
             let y = y - 1;
             let elevation = self.elevations[y][x] as Elevation;
             if elevation - pos.elevation <= 1 {
@@ -210,7 +208,6 @@ impl ElevationMap {
         }
         if y != self.max_y {
             // down
-            let x = x;
             let y = y + 1;
             let elevation = self.elevations[y][x] as Elevation;
             if elevation - pos.elevation <= 1 {

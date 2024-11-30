@@ -36,7 +36,7 @@ fn run(input: &'static str) -> (u32, u32) {
     (part1_answer, part2_answer)
 }
 
-fn parse_input(input: &'static str) -> Vec<&str> {
+fn parse_input(input: &'static str) -> Vec<&'static str> {
     input.trim_end().split('\n').collect()
 }
 

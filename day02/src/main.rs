@@ -12,20 +12,20 @@ fn run(input: &'static str) -> (u32, u32) {
     for line in lines {
         part1_answer += match line {
             "A X" => 1 + 3,
-            "B X" => 1 + 0,
+            "B X" => 1,
             "C X" => 1 + 6,
             "A Y" => 2 + 6,
             "B Y" => 2 + 3,
-            "C Y" => 2 + 0,
-            "A Z" => 3 + 0,
+            "C Y" => 2,
+            "A Z" => 3,
             "B Z" => 3 + 6,
             "C Z" => 3 + 3,
             _ => panic!("unknown input: {}", line),
         };
         part2_answer += match line {
-            "A X" => 3 + 0,
-            "B X" => 1 + 0,
-            "C X" => 2 + 0,
+            "A X" => 3,
+            "B X" => 1,
+            "C X" => 2,
             "A Y" => 1 + 3,
             "B Y" => 2 + 3,
             "C Y" => 3 + 3,
@@ -39,7 +39,7 @@ fn run(input: &'static str) -> (u32, u32) {
     (part1_answer, part2_answer)
 }
 
-fn parse_input(input: &'static str) -> Vec<&str> {
+fn parse_input(input: &'static str) -> Vec<&'static str> {
     input.trim_end().split("\n").collect()
 }
 

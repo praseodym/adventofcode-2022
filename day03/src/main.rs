@@ -28,7 +28,7 @@ fn run(input: &'static str) -> (u32, u32) {
         let r0: HashSet<char> = ri.next().unwrap().chars().collect();
         let r1: HashSet<char> = ri.next().unwrap().chars().collect();
         let r2: HashSet<char> = ri.next().unwrap().chars().collect();
-        let a: HashSet<char> = r0.intersection(&r1).map(|c| c.clone()).collect();
+        let a: HashSet<char> = r0.intersection(&r1).copied().collect();
         let mut b = a.intersection(&r2);
         let badge = b.next().unwrap();
         part2_answer += get_priority(*badge);
@@ -37,8 +37,8 @@ fn run(input: &'static str) -> (u32, u32) {
     (part1_answer, part2_answer)
 }
 
-fn parse_input(input: &'static str) -> Vec<&str> {
-    input.trim_end().split_whitespace().collect()
+fn parse_input(input: &'static str) -> Vec<&'static str> {
+    input.split_whitespace().collect()
 }
 
 fn get_priority(c: char) -> u32 {

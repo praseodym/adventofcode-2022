@@ -9,8 +9,8 @@ fn run(input: &'static str) -> String {
     to_snafu(sum)
 }
 
-fn parse_input(input: &'static str) -> Vec<&str> {
-    input.trim_end().split_whitespace().collect()
+fn parse_input(input: &'static str) -> Vec<&'static str> {
+    input.split_whitespace().collect()
 }
 
 fn from_snafu(snafu: &str) -> i64 {

@@ -31,7 +31,7 @@ fn run(input: &'static str) -> (usize, usize) {
     (part1_answer, part2_answer)
 }
 
-fn simulate(jets: &Vec<Jet>, rocks: &Vec<Vec<Vec<bool>>>, num_rocks: usize) -> usize {
+fn simulate(jets: &[Jet], rocks: &[Vec<Vec<bool>>], num_rocks: usize) -> usize {
     let mut chamber: Chamber = Vec::new();
     let mut rock_idx: usize = 0;
     let mut jet_idx: usize = 0;
@@ -144,7 +144,7 @@ fn is_clear(chamber: &Chamber, rock: &[Vec<bool>], x: isize, y: isize) -> bool {
     // check vertical clearance
     let dy = y - chamber.len() as isize;
     let h = rock.len() as isize;
-    return if dy >= 0 {
+    if dy >= 0 {
         true
     } else if -dy > chamber.len() as isize {
         false
@@ -162,7 +162,7 @@ fn is_clear(chamber: &Chamber, rock: &[Vec<bool>], x: isize, y: isize) -> bool {
             }
         }
         true
-    };
+    }
 }
 
 fn add_rock(chamber: &mut Chamber, rock: &[Vec<bool>], x: isize, y: isize) {

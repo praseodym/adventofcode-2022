@@ -14,10 +14,7 @@ fn run(input: &'static str) -> (u32, u32) {
     let top_elf = *cals.iter().max().unwrap();
 
     cals.sort_by_key(|w| Reverse(*w));
-    let mut top3_elfs: u32 = 0;
-    for n in 0..3 {
-        top3_elfs += cals[n];
-    }
+    let top3_elfs = cals.iter().take(3).sum();
 
     (top_elf, top3_elfs)
 }

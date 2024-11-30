@@ -37,7 +37,7 @@ enum Content {
     Rock,
 }
 
-const N: usize = 800;
+const N: usize = 700;
 #[derive(Debug)]
 struct CaveMap {
     blocked: [[Content; N]; N],
